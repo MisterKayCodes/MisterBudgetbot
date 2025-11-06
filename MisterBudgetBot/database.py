@@ -87,11 +87,13 @@ async def init_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             plan_type TEXT NOT NULL,
-            price REAL NOT NULL,
+            price REAL DEFAULT 0.0,
             start_date TEXT NOT NULL,
             end_date TEXT NOT NULL,
             is_trial INTEGER DEFAULT 0,
             status TEXT DEFAULT 'active',
+            payment_method TEXT DEFAULT 'manual',
+            created_at TEXT NOT NULL,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     """)
@@ -101,9 +103,11 @@ async def init_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             code TEXT UNIQUE NOT NULL,
             issued_by INTEGER,
-            days INTEGER DEFAULT 7,
+            duration_days INTEGER DEFAULT 7,
+            used INTEGER DEFAULT 0,
             used_by INTEGER DEFAULT NULL,
-            used_at TEXT DEFAULT NULL
+            used_at TEXT DEFAULT NULL,
+            created_at TEXT NOT NULL
         )
     """)
     

@@ -5,10 +5,18 @@ def get_admin_menu_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="🔁 Toggle Subscription Mode", callback_data="admin:toggle_sub")],
         [InlineKeyboardButton(text="🎟️ Generate Trial Code", callback_data="admin:trial")],
         [InlineKeyboardButton(text="📋 View Subscribers", callback_data="admin:subscribers")],
-        [InlineKeyboardButton(text="📊 Bot Statistics", callback_data="admin:stats")]
+        [InlineKeyboardButton(text="👥 View All Users", callback_data="admin:view_users")],
+        [InlineKeyboardButton(text="📊 Bot Statistics", callback_data="admin:stats")],
+        [InlineKeyboardButton(text="🗑️ Delete All Users", callback_data="admin:delete_users")]
     ])
 
 def get_back_to_admin_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="⬅️ Back to Admin Panel", callback_data="admin:menu")]
+    ])
+
+def get_confirm_delete_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="✅ Yes, Delete All Users", callback_data="admin:confirm_delete")],
+        [InlineKeyboardButton(text="❌ Cancel", callback_data="admin:menu")]
     ])

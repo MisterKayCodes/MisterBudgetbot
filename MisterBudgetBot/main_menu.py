@@ -16,6 +16,21 @@ async def get_main_menu_keyboard(telegram_id: int) -> InlineKeyboardMarkup:
     
     subscription_enabled = settings and settings['subscription_mode'] == 1
     
+    # Check if user is admin
+    is_admin = telegram_id in config.ADMIN_IDS
+    
+    # Check if user has active subscription
+    from features.subscription.services.subscription_service import is_subscription_active
+    has_subscription = await is_subscription_active(telegram_id)
+    
+    # If subscription mode is enabled and user is not admin and has no subscription, show only subscription button
+    if subscription_enabled and not is_admin and not has_subscription:
+        buttons = [
+            [InlineKeyboardButton(text="💳 Subscription", callback_data="menu:subscription")]
+        ]
+        return InlineKeyboardMarkup(inline_keyboard=buttons)
+    
+    # Otherwise, show full menu
     buttons = [
         [
             InlineKeyboardButton(text="➕ Add Income", callback_data="menu:add_income"),

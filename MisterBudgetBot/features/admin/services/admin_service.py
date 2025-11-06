@@ -28,13 +28,14 @@ async def toggle_subscription_mode():
 
 async def generate_trial_code(duration_days: int = 30):
     code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    now = get_current_datetime()
     
     db = await get_db()
     
     await db.execute(
-        """INSERT INTO trial_codes (code, issued_by, days, used_by, used_at)
-           VALUES (?, NULL, ?, NULL, NULL)""",
-        (code, duration_days)
+        """INSERT INTO trial_codes (code, issued_by, duration_days, used, used_by, used_at, created_at)
+           VALUES (?, NULL, ?, 0, NULL, NULL, ?)""",
+        (code, duration_days, now)
     )
     
     await db.commit()
@@ -95,3 +96,46 @@ async def get_bot_statistics():
         'total_transactions': total_txns['count'] if total_txns else 0,
         'active_goals': total_goals['count'] if total_goals else 0
     }
+
+async def get_all_users():
+    db = await get_db()
+    
+    query = """
+        SELECT id, telegram_id, full_name, email, currency, created_at
+        FROM users
+        ORDER BY created_at DESC
+    """
+    cursor = await db.execute(query)
+    rows = await cursor.fetchall()
+    await db.close()
+    
+    users = []
+    for row in rows:
+        users.append({
+            "id": row[0],
+            "telegram_id": row[1],
+            "full_name": row[2],
+            "email": row[3],
+            "currency": row[4],
+            "created_at": row[5]
+        })
+    
+    return users
+
+async def delete_all_users():
+    db = await get_db()
+    
+    # Delete all related data first due to foreign key constraints
+    await db.execute("DELETE FROM pending_payments")
+    await db.execute("DELETE FROM subscriptions")
+    await db.execute("DELETE FROM trial_codes WHERE used = 1")
+    await db.execute("DELETE FROM reminders")
+    await db.execute("DELETE FROM goals")
+    await db.execute("DELETE FROM transactions")
+    await db.execute("DELETE FROM accounts")
+    await db.execute("DELETE FROM users")
+    
+    await db.commit()
+    await db.close()
+    
+    return True

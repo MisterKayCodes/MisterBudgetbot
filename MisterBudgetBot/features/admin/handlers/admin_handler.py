@@ -3,12 +3,18 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from features.admin.states.admin_states import AdminStates
-from features.admin.keyboards.admin_keyboard import get_admin_menu_keyboard, get_back_to_admin_keyboard
+from features.admin.keyboards.admin_keyboard import (
+    get_admin_menu_keyboard,
+    get_back_to_admin_keyboard,
+    get_confirm_delete_keyboard
+)
 from features.admin.services.admin_service import (
     toggle_subscription_mode,
     generate_trial_code,
     get_subscribers_list,
-    get_bot_statistics
+    get_bot_statistics,
+    get_all_users,
+    delete_all_users
 )
 from utils.formatters import format_date
 import config
@@ -137,3 +143,68 @@ async def show_statistics(callback: CallbackQuery):
     keyboard = get_back_to_admin_keyboard()
     await callback.message.edit_text(text, reply_markup=keyboard)
     await callback.answer()
+
+@router.callback_query(F.data == "admin:view_users")
+async def show_all_users(callback: CallbackQuery):
+    if callback.from_user.id not in config.ADMIN_IDS:
+        await callback.answer("⛔ Access denied", show_alert=True)
+        return
+    
+    users = await get_all_users()
+    
+    if not users:
+        text = "👥 All Users\n\nNo users found in the database."
+    else:
+        text = f"👥 All Users ({len(users)})\n\n"
+        
+        for user in users[:15]:
+            text += f"👤 {user['full_name']}\n"
+            text += f"   ID: {user['telegram_id']}\n"
+            text += f"   Email: {user['email']}\n"
+            text += f"   Currency: {user['currency']}\n"
+            text += f"   Joined: {format_date(user['created_at'])}\n\n"
+        
+        if len(users) > 15:
+            text += f"\n... and {len(users) - 15} more users"
+    
+    keyboard = get_back_to_admin_keyboard()
+    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.answer()
+
+@router.callback_query(F.data == "admin:delete_users")
+async def confirm_delete_users(callback: CallbackQuery):
+    if callback.from_user.id not in config.ADMIN_IDS:
+        await callback.answer("⛔ Access denied", show_alert=True)
+        return
+    
+    text = """⚠️ DELETE ALL USERS
+
+This will permanently delete:
+• All user accounts
+• All transactions
+• All goals
+• All subscriptions
+• All reminders
+• All accounts
+
+This action CANNOT be undone!
+
+Are you sure you want to continue?"""
+    
+    keyboard = get_confirm_delete_keyboard()
+    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.answer()
+
+@router.callback_query(F.data == "admin:confirm_delete")
+async def execute_delete_users(callback: CallbackQuery):
+    if callback.from_user.id not in config.ADMIN_IDS:
+        await callback.answer("⛔ Access denied", show_alert=True)
+        return
+    
+    await delete_all_users()
+    
+    text = "✅ All users and related data have been deleted successfully."
+    
+    keyboard = get_back_to_admin_keyboard()
+    await callback.message.edit_text(text, reply_markup=keyboard)
+    await callback.answer("Database cleared!", show_alert=True)

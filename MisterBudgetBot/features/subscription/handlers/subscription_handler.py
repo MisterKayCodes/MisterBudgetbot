@@ -36,10 +36,10 @@ async def show_subscription_menu(callback: CallbackQuery):
 🔴 Status: No Active Subscription
 
 💎 Subscribe to unlock premium features!
-💰 Price: {config.SUBSCRIPTION_PRICE} per month
+💰 Price: {config.DEFAULT_MONTHLY_PRICE} per month
 
-Payment: Send {config.SUBSCRIPTION_PRICE} to:
-{config.BTC_PAYMENT_ADDRESS}
+Payment: Send {config.DEFAULT_MONTHLY_PRICE} to:
+{config.DEFAULT_BTC_ADDRESS}
 
 After payment, contact admin for activation."""
     
@@ -55,11 +55,11 @@ async def show_status(callback: CallbackQuery):
 async def show_purchase_info(callback: CallbackQuery):
     text = f"""💳 Purchase Subscription
 
-💰 Price: {config.SUBSCRIPTION_PRICE} per month
+💰 Price: {config.DEFAULT_MONTHLY_PRICE} per month
 
 Payment Instructions:
-1. Send {config.SUBSCRIPTION_PRICE} to:
-   {config.BTC_PAYMENT_ADDRESS}
+1. Send {config.DEFAULT_MONTHLY_PRICE} to:
+   {config.DEFAULT_BTC_ADDRESS}
 
 2. After payment, contact admin with:
    • Your transaction ID
