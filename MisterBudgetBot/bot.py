@@ -1,6 +1,8 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 import config
@@ -28,7 +30,7 @@ async def main():
     logger.info("✅ Database initialized successfully")
 
     # Setup bot and dispatcher
-    bot = Bot(token=config.TELEGRAM_BOT_TOKEN, parse_mode="HTML")
+    bot = Bot(token=config.TELEGRAM_BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher(storage=MemoryStorage())
 
     # Include feature routers

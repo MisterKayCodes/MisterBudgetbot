@@ -4,3 +4,27 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+packages = ["glibcLocales"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MisterBudgetBot"
+
+[[workflows.workflow]]
+name = "MisterBudgetBot"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd MisterBudgetBot && python bot.py"
+
+[workflows.workflow.metadata]
+outputType = "console"
